@@ -5,7 +5,9 @@ using HtmlAgilityPack;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -42,11 +44,10 @@ namespace FunctionApp1
                 doc = web.Load($"https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/slaskie/tychy/tychy/tychy?viewType=listing{page}");
                 string html = doc.DocumentNode.OuterHtml;
 
-                
                 htmlDoc.LoadHtml(html);
                 pages = htmlDoc.DocumentNode.SelectSingleNode("//li[@class='css-43nhzf']").InnerHtml;
                 var divs = htmlDoc.DocumentNode.SelectNodes("//div[@class='css-13gthep eeungyz2']");
-                
+
                 foreach (var div in divs)
                 {
                     List<string> test = new List<string>();
@@ -75,20 +76,21 @@ namespace FunctionApp1
                 y++;
                 page = $"&page={y.ToString()}";
 
-            //} while (y <= Int32.Parse(pages));
-            } while (y <= 13);
-
-            var groupedDetailsCount = details.GroupBy(detail => detail.Address.Estate)
+                //} while (y <= Int32.Parse(pages));
+            } while (y <= 3);
+        
+        var groupedDetailsCount = details.GroupBy(detail => detail.Address.Estate)
                                              .Select(group => new { Estate = group.Key, Count = group.Count() })
                                              .ToList();
 
             var avgPrice = details.GroupBy(detail => detail.Address.Estate)
-                .Select(group => new {
+                .Select(group => new
+                {
                     Estate = group.Key,
                     avgPrice = group.Average(x => x.Price),
                     minPrice = group.Min(x => (x.Price)),
                     maxPrice = group.Max(x => (x.Price))
-                    });
+                });
 
             foreach (var group in avgPrice)
             {

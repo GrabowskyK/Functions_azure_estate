@@ -12,9 +12,14 @@ namespace FunctionApp1.Database
     {
         public DbSet<FlatDetails> Flats { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
-            //optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=otodom;Trusted_Connection=True;");
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        }
+
+        //    DbSet<FlatDetails> flatDetails { get; set; }
+        //DbSet<Address> Addresses { get; set; }  
     }
 }
